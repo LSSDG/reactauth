@@ -14,20 +14,35 @@ const AuthForm = () => {
     e.preventDefault();
     const email=emailRef.current.value;
     const password = passwordRef.current.value;
+    let url;
     if(isLogin){
-
+      //https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]
+      url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDMYil6nWWFVCaTbSl585thunSXzBXKtZQ';
     }else{
-      fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY]',{
+      url='https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDMYil6nWWFVCaTbSl585thunSXzBXKtZQ';
+    }
+    fetch(url,{
         method:'POST',
         body:JSON.stringify({
           email:email,password:password,returnSecureToken:true
         })
-    })
-    }
+    }).then(res=>{
+      if(res.ok){
+        return res.json();
+      }else{
+        return res.json().then(data=>{
+          let errorMessage = 'Authentication failed';
+          
+          throw new Error(errorMessage);
+        })
+      }
+    }).then(data=>{}).catch(err=>{
+      alert(err.message);
+    });
 
   }
 
-  return (
+  return(
     <section className={classes.auth}>
       <h1>{isLogin ? 'Login' : 'Sign Up'}</h1>
       <form onSubmit={submitHandler}>
@@ -49,7 +64,7 @@ const AuthForm = () => {
             className={classes.toggle}
             onClick={switchAuthModeHandler}
           >
-            {isLogin ? 'Create new account' : 'Login with existing account'}
+            {isLogin ? 'Create new account' : 'Login with existing account' }
           </button>
         </div>
       </form>
